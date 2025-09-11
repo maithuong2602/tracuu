@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Tra cứu Mật khẩu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0; /* Màu nền tươi sáng */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="p-6">
+    <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Tra cứu Mật khẩu</h1>
+        
+        <!-- Listbox cho nhóm L -->
+        <div class="mb-4">
+            <label for="groupSelect" class="block text-sm font-medium text-gray-700 mb-2">Chọn nhóm:</label>
+            <select id="groupSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-lg shadow-sm">
+                <option value="">-- Chọn nhóm --</option>
+                <option value="L1">L1</option>
+                <option value="L2">L2</option>
+                <option value="L3">L3</option>
+                <option value="L4">L4</option>
+                <option value="L5">L5</option>
+            </select>
+        </div>
+        
+        <!-- Listbox cho vị trí (ẩn ban đầu) -->
+        <div id="positionContainer" class="hidden mb-4">
+            <label for="positionSelect" class="block text-sm font-medium text-gray-700 mb-2">Chọn vị trí:</label>
+            <select id="positionSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-lg shadow-sm"></select>
+        </div>
+
+        <!-- Hộp nhập mật khẩu và nút xác nhận (ẩn ban đầu) -->
+        <div id="passwordContainer" class="hidden">
+            <label for="passwordInput" class="block text-sm font-medium text-gray-700 mb-2">Nhập mật khẩu:</label>
+            <input type="password" id="passwordInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm">
+            <div class="text-center mt-4">
+                <button id="submitButton" class="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition duration-300 transform hover:scale-105">
+                    Tra cứu
+                </button>
+            </div>
+        </div>
+
+        <!-- Kết quả hiển thị (ẩn ban đầu) -->
+        <div id="resultBox" class="mt-6 hidden bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
+            <p class="text-gray-600 mb-2 flex items-center justify-between"><span class="font-semibold text-gray-800">Người dùng:</span> <span id="usernameOutput"></span><button onclick="copyToClipboard('usernameOutput')" class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded-lg hover:bg-gray-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v4a1 1 0 001 1h4a1 1 0 001-1V7m-4 5v2m0 4h.01M10 12v2m0 4h.01M16 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2m-2-12h-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2z" /></svg></button></p>
+            <p class="text-gray-600 flex items-center justify-between"><span class="font-semibold text-gray-800">Mật khẩu:</span> <span id="passwordOutput"></span><button onclick="copyToClipboard('passwordOutput')" class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded-lg hover:bg-gray-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v4a1 1 0 001 1h4a1 1 0 001-1V7m-4 5v2m0 4h.01M10 12v2m0 4h.01M16 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2m-2-12h-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2z" /></svg></button></p>
+            <p class="text-gray-600 mt-2 flex items-center justify-between"><span class="font-semibold text-gray-800">Mật khẩu mới:</span> <span id="newPasswordOutput"></span><button onclick="copyToClipboard('newPasswordOutput')" class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded-lg hover:bg-gray-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v4a1 1 0 001 1h4a1 1 0 001-1V7m-4 5v2m0 4h.01M10 12v2m0 4h.01M16 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2m-2-12h-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2z" /></svg></button></p>
+            
+            <p class="text-gray-600 mt-2 flex items-center justify-between"><span class="font-semibold text-gray-800">Số điện thoại:</span> <span id="phoneOutput">932472701</span><button onclick="copyToClipboard('phoneOutput')" class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded-lg hover:bg-gray-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v4a1 1 0 001 1h4a1 1 0 001-1V7m-4 5v2m0 4h.01M10 12v2m0 4h.01M16 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2m-2-12h-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2z" /></svg></button></p>
+            
+            <p class="text-gray-600 mt-2 flex items-center justify-between"><span class="font-semibold text-gray-800">Email:</span> <span id="emailOutput">lethimaithuong@gmail.com</span><button onclick="copyToClipboard('emailOutput')" class="ml-2 px-2 py-1 text-xs bg-gray-200 rounded-lg hover:bg-gray-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v4a1 1 0 001 1h4a1 1 0 001-1V7m-4 5v2m0 4h.01M10 12v2m0 4h.01M16 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2m-2-12h-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2z" /></svg></button></p>
+
+            <div class="mt-6 border-t pt-4">
+                <a id="officeLink" href="https://www.office.com/" target="_blank" class="block text-center bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 transform hover:scale-105 mb-2">Truy cập Office</a>
+                <a id="contentLink" href="#" target="_blank" class="block text-center bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 transform hover:scale-105">Truy cập nội dung</a>
+            </div>
+        </div>
+        
+        <!-- Hộp thông báo tùy chỉnh -->
+        <div id="messageBox" class="mt-6 hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative" role="alert">
+            <span class="block sm:inline" id="messageText"></span>
+        </div>
+    </div>
+
+    <script>
+        const allData = {
+            "L1": [{"position": "1.1", "username": "l1k25n1@danang.itrithuc.vn", "password": "T^651544400646ag", "new_password": "rUB93QEU4a"}, {"position": "1.2", "username": "l1k25n2@danang.itrithuc.vn", "password": "X/536362231566uj", "new_password": "X5uLTcFW5m"}, {"position": "1.3", "username": "l1k25n3@danang.itrithuc.vn", "password": "L%349318887525us", "new_password": "KT3ZpVZ&Tk"}, {"position": "1.4", "username": "l1k25n4@danang.itrithuc.vn", "password": "Y%563113183170uw", "new_password": "ne*%C6(#xA"}, {"position": "1.5", "username": "l1k25n5@danang.itrithuc.vn", "password": "F#018602739594ay", "new_password": "yZm%in5XCe"}, {"position": "1.6", "username": "l1k25n6@danang.itrithuc.vn", "password": "V%316621394067uz", "new_password": "A!)SVvkCxr"}, {"position": "2.1", "username": "l1k25n7@danang.itrithuc.vn", "password": "B/611532468253af", "new_password": "C^#9g^N7*s"}, {"position": "2.2", "username": "l1k25n8@danang.itrithuc.vn", "password": "Y$664724773824uj", "new_password": "Z#3pP%R!sW"}, {"position": "2.3", "username": "l1k25n9@danang.itrithuc.vn", "password": "T@285601262071oq", "new_password": "d(jQ6X&M5w"}, {"position": "2.4", "username": "l1k25n10@danang.itrithuc.vn", "password": "J!355598683526uq", "new_password": "c*8wHh*R$m"}, {"position": "2.5", "username": "l1k25n11@danang.itrithuc.vn", "password": "L*984724039860oc", "new_password": "JbQd^v%e9v"}, {"position": "2.6", "username": "l1k25n12@danang.itrithuc.vn", "password": "R.347573427909ot", "new_password": "Z%3gQ&aD#Q"}, {"position": "3.1", "username": "l1k25n13@danang.itrithuc.vn", "password": "Y%204297881180ah", "new_password": "rU*2WwN*^#"}, {"position": "3.2", "username": "l1k25n14@danang.itrithuc.vn", "password": "P&871861007871ut", "new_password": "g@!9UfA(t4"}, {"position": "3.3", "username": "l1k25n15@danang.itrithuc.vn", "password": "V!969512395632uc", "new_password": "jE@yT8*j#u"}, {"position": "3.4", "username": "l1k25n16@danang.itrithuc.vn", "password": "W/488094851216on", "new_password": "C^BPjNEsNs"}, {"position": "3.5", "username": "l1k25n17@danang.itrithuc.vn", "password": "Y.1772606934um", "new_password": "FV@7HhuDdD"}, {"position": "3.6", "username": "l1k25n18@danang.itrithuc.vn", "password": "V(015317036398as", "new_password": "!7*yN%YoqZ"}, {"position": "3.7", "username": "l1k25n19@danang.itrithuc.vn", "password": "Y*690041826432al", "new_password": "HYo$oYfL3Q"}, {"position": "3.8", "username": "l1k25n20@danang.itrithuc.vn", "password": "P#660149302323al", "new_password": "bB!AfCmBn9"}, {"position": "4.1", "username": "l1k25n21@danang.itrithuc.vn", "password": "T&693378702070an", "new_password": "S(g4Cesw*b"}, {"position": "4.2", "username": "l1k25n22@danang.itrithuc.vn", "password": "N/344827132024oc", "new_password": "37h7nP@F6S"}, {"position": "4.3", "username": "l1k25n23@danang.itrithuc.vn", "password": "V*461932758682ar", "new_password": "e9RvS2CNq7"}, {"position": "4.4", "username": "l1k25n24@danang.itrithuc.vn", "password": "G$362404536524ab", "new_password": "a%m4#^aqTw"}, {"position": "4.5", "username": "l1k25n25@danang.itrithuc.vn", "password": "T%842880053911uh", "new_password": "uN9&D5s*aY"}, {"position": "4.6", "username": "l1k25n26@danang.itrithuc.vn", "password": "H!798031448842af", "new_password": "U2H!Q@mJ#g"}],
+            "L2": [{"position": "1.1", "username": "l2k25n1@danang.itrithuc.vn", "password": "G$494358755372at", "new_password": "rUB93QEU4a"}, {"position": "1.2", "username": "l2k25n2@danang.itrithuc.vn", "password": "B*801987794652ah", "new_password": "X5uLTcFW5m"}, {"position": "1.3", "username": "l2k25n3@danang.itrithuc.vn", "password": "C%658524000553un", "new_password": "KT3ZpVZ&Tk"}, {"position": "1.4", "username": "l2k25n4@danang.itrithuc.vn", "password": "V/140950063044ak", "new_password": "ne*%C6(#xA"}, {"position": "1.5", "username": "l2k25n5@danang.itrithuc.vn", "password": "B/270184825706oj", "new_password": "yZm%in5XCe"}, {"position": "1.6", "username": "l2k25n6@danang.itrithuc.vn", "password": "B@691726104912uq", "new_password": "A!)SVvkCxr"}, {"position": "2.1", "username": "l2k25n7@danang.itrithuc.vn", "password": "Y!802862919558ar", "new_password": "C^#9g^N7*s"}, {"position": "2.2", "username": "l2k25n8@danang.itrithuc.vn", "password": "N$808544061845ok", "new_password": "Z#3pP%R!sW"}, {"position": "2.3", "username": "l2k25n9@danang.itrithuc.vn", "password": "Y.139683935824uy", "new_password": "d(jQ6X&M5w"}, {"position": "2.4", "username": "l2k25n10@danang.itrithuc.vn", "password": "D.921679069351on", "new_password": "c*8wHh*R$m"}, {"position": "2.5", "username": "l2k25n11@danang.itrithuc.vn", "password": "T/439223389027oh", "new_password": "JbQd^v%e9v"}, {"position": "2.6", "username": "l2k25n12@danang.itrithuc.vn", "password": "T$448767355030ur", "new_password": "Z%3gQ&aD#Q"}, {"position": "3.1", "username": "l2k25n13@danang.itrithuc.vn", "password": "Q/449622473434uc", "new_password": "rU*2WwN*^#"}, {"position": "3.2", "username": "l2k25n14@danang.itrithuc.vn", "password": "X%948197793144uw", "new_password": "g@!9UfA(t4"}, {"position": "3.3", "username": "l2k25n15@danang.itrithuc.vn", "password": "P*022416955890or", "new_password": "jE@yT8*j#u"}, {"position": "3.4", "username": "l2k25n16@danang.itrithuc.vn", "password": "D$556391481005EsNs", "new_password": "C^BPjNEsNs"}, {"position": "3.5", "username": "l2k25n17@danang.itrithuc.vn", "password": "H@749349988248ok", "new_password": "FV@7HhuDdD"}, {"position": "3.6", "username": "l2k25n18@danang.itrithuc.vn", "password": "C)710023059263ut", "new_password": "!7*yN%YoqZ"}, {"position": "3.7", "username": "l2k25n19@danang.itrithuc.vn", "password": "F)295627485490ub", "new_password": "HYo$oYfL3Q"}, {"position": "3.8", "username": "l2k25n20@danang.itrithuc.vn", "password": "H.946882893931aj", "new_password": "bB!AfCmBn9"}, {"position": "4.1", "username": "l2k25n21@danang.itrithuc.vn", "password": "R#165670758884of", "new_password": "S(g4Cesw*b"}, {"position": "4.2", "username": "l2k25n22@danang.itrithuc.vn", "password": "W(626444098899um", "new_password": "37h7nP@F6S"}, {"position": "4.3", "username": "l2k25n23@danang.itrithuc.vn", "password": "B*506532387992aj", "new_password": "e9RvS2CNq7"}, {"position": "4.4", "username": "l2k25n24@danang.itrithuc.vn", "password": "L)515661139457am", "new_password": "a%m4#^aqTw"}, {"position": "4.5", "username": "l2k25n25@danang.itrithuc.vn", "password": "R.185208940801ac", "new_password": "uN9&D5s*aY"}, {"position": "4.6", "username": "l2k25n26@danang.itrithuc.vn", "password": "R(425027589319uv", "new_password": "U2H!Q@mJ#g"}],
+            "L3": [{"position": "1.1", "username": "13k25n1@danang.itrithuc.vn", "password": "Y$988606242038on", "new_password": "N/A"}, {"position": "1.2", "username": "13k25n2@danang.itrithuc.vn", "password": "Q%172685517888un", "new_password": "N/A"}, {"position": "1.3", "username": "13k25n3@danang.itrithuc.vn", "password": "N)338615039307az", "new_password": "N/A"}, {"position": "1.4", "username": "13k25n4@danang.itrithuc.vn", "password": "D!177308264441ar", "new_password": "N/A"}, {"position": "1.5", "username": "13k25n5@danang.itrithuc.vn", "password": "M%976949674959uq", "new_password": "N/A"}, {"position": "1.6", "username": "13k25n6@danang.itrithuc.vn", "password": "R/978663141623uq", "new_password": "N/A"}, {"position": "2.1", "username": "13k25n7@danang.itrithuc.vn", "password": "X^543678253232ut", "new_password": "N/A"}, {"position": "2.2", "username": "13k25n8@danang.itrithuc.vn", "password": "Z&580059080910ak", "new_password": "N/A"}, {"position": "2.3", "username": "13k25n9@danang.itrithuc.vn", "password": "R1497554122741up", "new_password": "N/A"}, {"position": "2.4", "username": "13k25n10@danang.itrithuc.vn", "password": "P#509428401998uc", "new_password": "N/A"}, {"position": "2.5", "username": "13k25n11@danang.itrithuc.vn", "password": "R@244927730124ud", "new_password": "N/A"}, {"position": "2.6", "username": "13k25n12@danang.itrithuc.vn", "password": "J$678077418735um", "new_password": "N/A"}, {"position": "3.1", "username": "13k25n13@danang.itrithuc.vn", "password": "X@371859168347ad", "new_password": "N/A"}, {"position": "3.2", "username": "13k25n14@danang.itrithuc.vn", "password": "V(419654831423od", "new_password": "N/A"}, {"position": "3.3", "username": "13k25n15@danang.itrithuc.vn", "password": "P.615265605635ok", "new_password": "N/A"}, {"position": "3.4", "username": "13k25n16@danang.itrithuc.vn", "password": "L$657731511316an", "new_password": "N/A"}, {"position": "3.5", "username": "13k25n17@danang.itrithuc.vn", "password": "Q&305929854965aj", "new_password": "N/A"}, {"position": "3.6", "username": "13k25n18@danang.itrithuc.vn", "password": "Y^293537993514ot", "new_password": "N/A"}, {"position": "4.1", "username": "13k25n19@danang.itrithuc.vn", "password": "N&357044607239ax", "new_password": "N/A"}, {"position": "4.2", "username": "13k25n20@danang.itrithuc.vn", "password": "F*447263841278ar", "new_password": "N/A"}, {"position": "4.3", "username": "13k25n21@danang.itrithuc.vn", "password": "X.870461466193uy", "new_password": "N/A"}, {"position": "4.4", "username": "13k25n22@danang.itrithuc.vn", "password": "T&856957959930uk", "new_password": "N/A"}, {"position": "4.5", "username": "13k25n23@danang.itrithuc.vn", "password": "R@068605353265ap", "new_password": "N/A"}, {"position": "4.6", "username": "13k25n24@danang.itrithuc.vn", "password": "R/810710221464uk", "new_password": "N/A"}, {"position": "5.1", "username": "13k25n25@danang.itrithuc.vn", "password": "J&099733551648oq", "new_password": "N/A"}, {"position": "5.2", "username": "13k25n26@danang.itrithuc.vn", "password": "K$136263428614or", "new_password": "N/A"}, {"position": "5.3", "username": "13k25n27@danang.itrithuc.vn", "password": "V)299310015574uy", "new_password": "N/A"}, {"position": "5.4", "username": "13k25n28@danang.itrithuc.vn", "password": "L%148303166279uy", "new_password": "N/A"}, {"position": "5.5", "username": "13k25n29@danang.itrithuc.vn", "password": "F.863308747450uj", "new_password": "N/A"}, {"position": "5.6", "username": "13k25n30@danang.itrithuc.vn", "password": "W&694603007591aq", "new_password": "N/A"}, {"position": "6.1", "username": "13k25n31@danang.itrithuc.vn", "password": "Y%782452029772up", "new_password": "N/A"}, {"position": "6.2", "username": "13k25n32@danang.itrithuc.vn", "password": "Y!808095139334uc", "new_password": "N/A"}, {"position": "6.3", "username": "13k25n33@danang.itrithuc.vn", "password": "W(308673025604up", "new_password": "N/A"}, {"position": "6.4", "username": "13k25n34@danang.itrithuc.vn", "password": "R&009543443268ap", "new_password": "N/A"}, {"position": "6.5", "username": "13k25n35@danang.itrithuc.vn", "password": "Y&694331067657uc", "new_password": "N/A"}, {"position": "6.6", "username": "13k25n36@danang.itrithuc.vn", "password": "P(022493038930up", "new_password": "N/A"}, {"position": "7.1", "username": "13k25n37@danang.itrithuc.vn", "password": "R(483311654032uc", "new_password": "N/A"}, {"position": "7.2", "username": "13k25n38@danang.itrithuc.vn", "password": "W$794778694797ah", "new_password": "N/A"}, {"position": "7.3", "username": "13k25n39@danang.itrithuc.vn", "password": "Z)336029228579ut", "new_password": "N/A"}, {"position": "7.4", "username": "13k25n40@danang.itrithuc.vn", "password": "C)4256770228460p", "new_password": "N/A"}],
+            "L4": [{"position": "1.1", "username": "l4k25n1@danang.itrithuc.vn", "password": "G)145978842324ug", "new_password": "rUB93QEU4a"}, {"position": "1.2", "username": "l4k25n2@danang.itrithuc.vn", "password": "P$864011582848od", "new_password": "X5uLTcFW5m"}, {"position": "1.3", "username": "l4k25n3@danang.itrithuc.vn", "password": "Z@191672446059ak", "new_password": "KT3ZpVZ&Tk"}, {"position": "1.4", "username": "l4k25n4@danang.itrithuc.vn", "password": "X!263830721784am", "new_password": "ne*%C6(#xA"}, {"position": "1.5", "username": "l4k25n5@danang.itrithuc.vn", "password": "R/171744838727ub", "new_password": "yZm%in5XCe"}, {"position": "1.6", "username": "l4k25n6@danang.itrithuc.vn", "password": "F.218996843478ug", "new_password": "A!)SVvkCxr"}, {"position": "2.1", "username": "l4k25n7@danang.itrithuc.vn", "password": "T.714187582324ag", "new_password": "C^#9g^N7*s"}, {"position": "2.2", "username": "l4k25n8@danang.itrithuc.vn", "password": "T@487333554160uf", "new_password": "Z#3pP%R!sW"}, {"position": "2.3", "username": "l4k25n9@danang.itrithuc.vn", "password": "F&936166418859un", "new_password": "d(jQ6X&M5w"}, {"position": "2.4", "username": "l4k25n10@danang.itrithuc.vn", "password": "H*784131566863ag", "new_password": "c*8wHh*R$m"}, {"position": "2.5", "username": "l4k25n11@danang.itrithuc.vn", "password": "H/154780517926ut", "new_password": "JbQd^v%e9v"}, {"position": "2.6", "username": "l4k25n12@danang.itrithuc.vn", "password": "D/132549226463ug", "new_password": "Z%3gQ&aD#Q"}, {"position": "3.1", "username": "l4k25n13@danang.itrithuc.vn", "password": "Z.126019532658ah", "new_password": "rU*2WwN*^#"}, {"position": "3.2", "username": "l4k25n14@danang.itrithuc.vn", "password": "R!262791656024oq", "new_password": "g@!9UfA(t4"}, {"position": "3.3", "username": "l4k25n15@danang.itrithuc.vn", "password": "W@169722883460af", "new_password": "jE@yT8*j#u"}, {"position": "3.4", "username": "l4k25n16@danang.itrithuc.vn", "password": "L$319321458069on", "new_password": "C^BPjNEsNs"}, {"position": "3.5", "username": "l4k25n17@danang.itrithuc.vn", "password": "Y%599575376263oh", "new_password": "FV@7HhuDdD"}, {"position": "3.6", "username": "l4k25n18@danang.itrithuc.vn", "password": "D#751236862730ug", "new_password": "!7*yN%YoqZ"}, {"position": "4.1", "username": "l4k25n19@danang.itrithuc.vn", "password": "W#506841439797uy", "new_password": "HYo$oYfL3Q"}, {"position": "4.2", "username": "l4k25n20@danang.itrithuc.vn", "password": "W&596331657489om", "new_password": "bB!AfCmBn9"}, {"position": "4.3", "username": "l4k25n21@danang.itrithuc.vn", "password": "F#141696859335aq", "new_password": "S(g4Cesw*b"}, {"position": "4.4", "username": "l4k25n22@danang.itrithuc.vn", "password": "S)479724784997as", "new_password": "37h7nP@F6S"}, {"position": "4.5", "username": "l4k25n23@danang.itrithuc.vn", "password": "Q@890719290840af", "new_password": "e9RvS2CNq7"}, {"position": "4.6", "username": "l4k25n24@danang.itrithuc.vn", "password": "B*172083695275ah", "new_password": "a%m4#^aqTw"}],
+            "L5": [{"position": "1.1", "username": "l5k25n1@danang.itrithuc.vn", "password": "Z!185251726280ob", "new_password": "rUB93QEU4a"}, {"position": "1.2", "username": "l5k25n2@danang.itrithuc.vn", "password": "J)457617386259um", "new_password": "X5uLTcFW5m"}, {"position": "1.3", "username": "l5k25n3@danang.itrithuc.vn", "password": "M/806453250781ay", "new_password": "KT3ZpVZ&Tk"}, {"position": "1.4", "username": "l5k25n4@danang.itrithuc.vn", "password": "R^766754593439uz", "new_password": "ne*%C6(#xA"}, {"position": "1.5", "username": "l5k25n5@danang.itrithuc.vn", "password": "C!924777792547af", "new_password": "yZm%in5XCe"}, {"position": "1.6", "username": "l5k25n6@danang.itrithuc.vn", "password": "V^791584389538ob", "new_password": "A!)SVvkCxr"}, {"position": "2.1", "username": "l5k25n7@danang.itrithuc.vn", "password": "L/798316823509ad", "new_password": "C^#9g^N7*s"}, {"position": "2.2", "username": "l5k25n8@danang.itrithuc.vn", "password": "L@156947702155al", "new_password": "Z#3pP%R!sW"}, {"position": "2.3", "username": "l5k25n9@danang.itrithuc.vn", "password": "W%438641049969ah", "new_password": "d(jQ6X&M5w"}, {"position": "2.4", "username": "l5k25n10@danang.itrithuc.vn", "password": "C%923504933907ub", "new_password": "c*8wHh*R$m"}, {"position": "2.5", "username": "l5k25n11@danang.itrithuc.vn", "password": "Z.653457007722as", "new_password": "JbQd^v%e9v"}, {"position": "2.6", "username": "l5k25n12@danang.itrithuc.vn", "password": "S*336696773200oh", "new_password": "Z%3gQ&aD#Q"}, {"position": "3.1", "username": "l5k25n13@danang.itrithuc.vn", "password": "V$774578144415ug", "new_password": "rU*2WwN*^#"}, {"position": "3.2", "username": "l5k25n14@danang.itrithuc.vn", "password": "M^840838612741up", "new_password": "g@!9UfA(t4"}, {"position": "3.3", "username": "l5k25n15@danang.itrithuc.vn", "password": "M/093282216503uh", "new_password": "jE@yT8*j#u"}, {"position": "3.4", "username": "l5k25n16@danang.itrithuc.vn", "password": "J$504993166886an", "new_password": "C^BPjNEsNs"}, {"position": "3.5", "username": "l5k25n17@danang.itrithuc.vn", "password": "J&676188100135ot", "new_password": "FV@7HhuDdD"}, {"position": "3.6", "username": "l5k25n18@danang.itrithuc.vn", "password": "W$322490577665an", "new_password": "!7*yN%YoqZ"}, {"position": "3.7", "username": "l5k25n19@danang.itrithuc.vn", "password": "K/800998388889ow", "new_password": "HYo$oYfL3Q"}, {"position": "3.8", "username": "l5k25n20@danang.itrithuc.vn", "password": "K)978978985760af", "new_password": "bB!AfCmBn9"}, {"position": "4.1", "username": "l5k25n21@danang.itrithuc.vn", "password": "C@199936544819ur", "new_password": "S(g4Cesw*b"}, {"position": "4.2", "username": "l5k25n22@danang.itrithuc.vn", "password": "X*343448084668uc", "new_password": "37h7nP@F6S"}, {"position": "4.3", "username": "l5k25n23@danang.itrithuc.vn", "password": "X%385316199135ud", "new_password": "e9RvS2CNq7"}, {"position": "4.4", "username": "l5k25n24@danang.itrithuc.vn", "password": "G)704990793618oq", "new_password": "a%m4#^aqTw"}, {"position": "4.5", "username": "l5k25n25@danang.itrithuc.vn", "password": "J*762410884976ax", "new_password": "uN9&D5s*aY"}, {"position": "4.6", "username": "l5k25n26@danang.itrithuc.vn", "password": "F.447545194179ub", "new_password": "U2H!Q@mJ#g"}]
+        };
+
+        const passwordMap = {
+            "1.": "1qs2wd",
+            "2.": "0ok9ij",
+            "3.": "3ef4rg",
+            "4.": "8uh7yg",
+            "5.": "5th6yj",
+            "6.": "6tf5rd",
+            "7.": "6tf5rd"
+        };
+
+        const groupSelect = document.getElementById('groupSelect');
+        const positionContainer = document.getElementById('positionContainer');
+        const positionSelect = document.getElementById('positionSelect');
+        const passwordContainer = document.getElementById('passwordContainer');
+        const passwordInput = document.getElementById('passwordInput');
+        const submitButton = document.getElementById('submitButton');
+        const resultBox = document.getElementById('resultBox');
+        const messageBox = document.getElementById('messageBox');
+        const usernameOutput = document.getElementById('usernameOutput');
+        const passwordOutput = document.getElementById('passwordOutput');
+        const newPasswordOutput = document.getElementById('newPasswordOutput');
+        const phoneOutput = document.getElementById('phoneOutput');
+        const emailOutput = document.getElementById('emailOutput');
+        const contentLink = document.getElementById('contentLink');
+
+        // Lắng nghe sự kiện thay đổi của nhóm L
+        groupSelect.addEventListener('change', () => {
+            const selectedGroup = groupSelect.value;
+            positionSelect.innerHTML = '<option value="">-- Chọn vị trí --</option>';
+            positionContainer.classList.add('hidden');
+            passwordContainer.classList.add('hidden');
+            resultBox.classList.add('hidden');
+            hideMessage();
+
+            if (selectedGroup) {
+                const positions = allData[selectedGroup];
+                if (positions) {
+                    positions.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.position;
+                        option.textContent = `Vị trí: ${item.position}`;
+                        positionSelect.appendChild(option);
+                    });
+                    positionContainer.classList.remove('hidden');
+                } else {
+                    showMessage('Không tìm thấy dữ liệu cho nhóm đã chọn.');
+                }
+            }
+        });
+
+        // Lắng nghe sự kiện thay đổi của vị trí
+        positionSelect.addEventListener('change', () => {
+            const selectedPosition = positionSelect.value;
+            passwordContainer.classList.add('hidden');
+            resultBox.classList.add('hidden');
+            hideMessage();
+
+            if (selectedPosition) {
+                passwordContainer.classList.remove('hidden');
+                passwordInput.value = ''; // Xóa mật khẩu cũ
+            }
+        });
+
+        // Lắng nghe sự kiện click nút "Tra cứu"
+        submitButton.addEventListener('click', () => {
+            const selectedGroup = groupSelect.value;
+            const selectedPosition = positionSelect.value;
+            const enteredPassword = passwordInput.value;
+            
+            const groupData = allData[selectedGroup];
+            const selectedData = groupData.find(item => item.position === selectedPosition);
+            
+            // Tìm mật khẩu đúng dựa trên vị trí đã chọn
+            const positionPrefix = selectedPosition.substring(0, selectedPosition.indexOf('.') + 1);
+            let requiredPassword = passwordMap[positionPrefix] || '';
+            
+            // Xử lý các trường hợp ngoại lệ nếu cần
+            if (selectedGroup === 'L3') {
+                if (selectedPosition.startsWith('7.')) {
+                     requiredPassword = "6tf5rd";
+                } else {
+                    requiredPassword = passwordMap[positionPrefix] || 'defaultpass';
+                }
+            } else {
+                requiredPassword = passwordMap[positionPrefix] || 'defaultpass';
+            }
+
+
+            if (enteredPassword === requiredPassword) {
+                if (selectedData) {
+                    usernameOutput.textContent = selectedData.username;
+                    passwordOutput.textContent = selectedData.password;
+                    newPasswordOutput.textContent = selectedData.new_password;
+                    resultBox.classList.remove('hidden');
+                    hideMessage();
+
+                    // Cập nhật đường dẫn cho nút "Truy cập nội dung"
+                    if (selectedGroup === 'L1') {
+                        contentLink.href = "https://teams.microsoft.com/l/channel/19%3AqBlqXB88gHDo3GRBCWIXqEf_J__5EYr_F0qvx_Gio7U1%40thread.tacv2/General?groupId=8d646bec-3258-426a-9d22-39415f8714f5&tenantId=47069681-e2f5-4157-89db-1625e83de35f";
+                    } else if (selectedGroup === 'L2') {
+                        contentLink.href = "https://teams.microsoft.com/l/team/19%3AiqYCd5SEclhzE7AGRStvea5nig9vIrQiXF2rvBTwyE41%40thread.tacv2/conversations?groupId=13f5316d-3651-4072-aa4c-c4a7cdac287b&tenantId=47069681-e2f5-4157-89db-1625e83de35f";
+                    } else if (selectedGroup === 'L3') {
+                        contentLink.href = "https://teams.microsoft.com/l/team/19%3Aul_UD4Mwa0DaNwfdB2POrPFcd39DUkc24HkXduvdAvg1%40thread.tacv2/conversations?groupId=c23057f6-fa7a-48b3-a7a6-14f117fe5020&tenantId=47069681-e2f5-4157-89db-1625e83de35f";
+                    } else if (selectedGroup === 'L4') {
+                        contentLink.href = "https://teams.microsoft.com/l/team/19%3AhwvOa4F1OWV6BdVVpB9t9-Tvs6zz6BdIHKScj1tIZSQ1%40thread.tacv2/conversations?groupId=7ce65daf-ba25-4705-97e8-047dc11b213b&tenantId=47069681-e2f5-4157-89db-1625e83de35f";
+                    } else if (selectedGroup === 'L5') {
+                        contentLink.href = "https://teams.microsoft.com/l/team/19%3A0LxnzKfkzQz-eeasHZt1kjrB2hd7ml5OUt4C2SgLFiI1%40thread.tacv2/conversations?groupId=45850b49-1554-40ef-815c-465f99e686df&tenantId=47069681-e2f5-4157-89db-1625e83de35f";
+                    } else {
+                        // Đặt lại đường dẫn nếu không phải các nhóm đã quy định
+                        contentLink.href = "#";
+                    }
+                } else {
+                    showMessage('Không tìm thấy dữ liệu chi tiết cho vị trí đã chọn.');
+                }
+            } else {
+                resultBox.classList.add('hidden');
+                showMessage('Mật khẩu không đúng. Vui lòng thử lại.');
+            }
+        });
+
+        // Hiển thị thông báo tùy chỉnh
+        function showMessage(text) {
+            messageBox.classList.remove('hidden');
+            document.getElementById('messageText').textContent = text;
+        }
+
+        // Ẩn thông báo
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+        }
+
+        // Chức năng sao chép vào clipboard
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const textToCopy = element.textContent;
+
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showMessage(`Đã sao chép vào clipboard.`);
+            } catch (err) {
+                showMessage('Lỗi: Không thể sao chép văn bản.');
+                console.error('Không thể sao chép văn bản: ', err);
+            }
+            document.body.removeChild(textarea);
+        }
+    </script>
+</body>
+</html>
